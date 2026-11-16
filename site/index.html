@@ -3,12 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI &amp; DS Stage 2 Timetable</title>
+    <title>Epoch &middot; AI &amp; DS Stage 2 Timetable</title>
     <meta name="description" content="Weekly timetable for AI &amp; DS Stage 2, Semester 1. Pick your group, save it as an image, or add it to your calendar." />
-    <meta property="og:title" content="AI &amp; DS Stage 2 Timetable" />
+    <meta property="og:title" content="Epoch &middot; AI &amp; DS Stage 2 Timetable" />
+    <meta property="og:site_name" content="Epoch" />
     <meta property="og:description" content="Pick your group, save it as an image, or add it to your calendar." />
     <meta name="theme-color" content="#F4F1EA" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315140F'/%3E%3Crect x='7' y='8' width='7' height='16' rx='2' fill='%23F4F1EA'/%3E%3Crect x='18' y='8' width='7' height='7' rx='2' fill='%23F4F1EA' opacity='.55'/%3E%3Crect x='18' y='18' width='7' height='6' rx='2' fill='%23F4F1EA'/%3E%3C/svg%3E" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -25,7 +27,11 @@
   <body>
     <div class="page">
       <header class="masthead">
-        <p class="eyebrow" id="institution"></p>
+        <a class="brand" href="./" aria-label="Epoch, home">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="32" r="15" /><path d="M32 7h24v10H22A10 10 0 0 1 32 7zM20 27h36v10H20zM22 47h34v10H32a10 10 0 0 1-10-10zM22 17h5v5h-5zM22 42h5v5h-5z" /><path class="brand-gap" d="M27 17h37v10H27a5 5 0 0 1 0-10zM27 37h37v10H27a5 5 0 0 1 0-10z" /></svg>
+          Epoch
+        </a>
+        <p class="eyebrow masthead-note" id="institution"></p>
         <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch between light and dark theme">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor" /></svg>
         </button>
@@ -77,6 +83,7 @@
       <footer class="colophon">
         <p id="source"></p>
         <p>Always confirm changes with your official notices.</p>
+        <p class="credit">Made With Love By Ranuth Nanvidu &amp; Claude Code</p>
       </footer>
     </div>
 

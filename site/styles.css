@@ -82,8 +82,41 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  color: var(--ink);
+  font: 400 28px/1 var(--serif);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.brand-mark {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+  transition: transform 0.5s var(--ease);
+}
+
+.brand:hover .brand-mark {
+  transform: rotate(-90deg);
+}
+
+.brand-gap {
+  fill: var(--paper);
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .icon-button {
@@ -712,6 +745,14 @@ h1 em {
   color: var(--ink-2);
 }
 
+.credit {
+  flex-basis: 100%;
+  margin-top: 22px;
+  text-align: center;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
 .sheet {
   width: min(460px, calc(100vw - 28px));
   padding: 28px;
@@ -880,6 +921,12 @@ h1 em {
 
   .actions .button {
     flex: 1 1 160px;
+  }
+}
+
+@media (max-width: 640px) {
+  .masthead-note {
+    display: none;
   }
 }
 

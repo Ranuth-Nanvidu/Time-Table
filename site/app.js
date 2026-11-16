@@ -213,7 +213,7 @@
     const now = zoneNow();
     if (!own.some((session) => session.module === state.pinned)) state.pinned = null;
     state.hovered = null;
-    document.title = `Group ${state.group} · ${T.cohortTitle} Timetable`;
+    document.title = `Epoch · Group ${state.group} · ${T.cohortTitle}`;
     renderStats();
     renderChips(own);
     renderGrid(own, now);
