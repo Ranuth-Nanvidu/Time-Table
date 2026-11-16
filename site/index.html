@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI &amp; DS Stage 2 Timetable</title>
+    <meta name="description" content="Weekly timetable for AI &amp; DS Stage 2, Semester 1. Pick your group, save it as an image, or add it to your calendar." />
+    <meta property="og:title" content="AI &amp; DS Stage 2 Timetable" />
+    <meta property="og:description" content="Pick your group, save it as an image, or add it to your calendar." />
+    <meta name="theme-color" content="#F4F1EA" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315140F'/%3E%3Crect x='7' y='8' width='7' height='16' rx='2' fill='%23F4F1EA'/%3E%3Crect x='18' y='8' width='7' height='7' rx='2' fill='%23F4F1EA' opacity='.55'/%3E%3Crect x='18' y='18' width='7' height='6' rx='2' fill='%23F4F1EA'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var theme = null;
+        try { theme = localStorage.getItem('tt-theme'); } catch (error) {}
+        if (!theme) theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <p class="eyebrow" id="institution"></p>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch between light and dark theme">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor" /></svg>
+        </button>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-main">
+            <p class="eyebrow">Semester 1 &middot; Weekly timetable</p>
+            <h1 id="cohort"></h1>
+            <fieldset class="picker">
+              <legend class="eyebrow">Choose your group</legend>
+              <div class="picker-letters" id="picker"></div>
+            </fieldset>
+          </div>
+          <aside class="next" id="next" aria-live="polite"></aside>
+        </section>
+
+        <section class="brief">
+          <dl class="stats" id="stats"></dl>
+          <div class="actions">
+            <button class="button" id="download-image" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              Save as image
+            </button>
+            <button class="button button-solid" id="open-calendar" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4.5 9.5h15M8 3.5v3m8-3v3M6 5h12a1.5 1.5 0 0 1 1.5 1.5V18a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V6.5A1.5 1.5 0 0 1 6 5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              Add to calendar
+            </button>
+          </div>
+        </section>
+
+        <section class="board" id="board" aria-label="Weekly timetable">
+          <div class="board-head">
+            <div class="chips" id="chips" role="group" aria-label="Highlight a module"></div>
+            <p class="note">Sri Lanka time, UTC+5:30</p>
+          </div>
+          <div class="grid" id="grid"></div>
+          <div class="agenda" id="agenda"></div>
+          <ul class="legend">
+            <li><span class="swatch swatch-lecture"></span>Lecture</li>
+            <li><span class="swatch swatch-tutorial"></span>Tutorial</li>
+            <li><span class="swatch swatch-session"></span>Other session</li>
+            <li><span class="dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>Groups in the room, <span id="legend-range"></span></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer class="colophon">
+        <p id="source"></p>
+        <p>Always confirm changes with your official notices.</p>
+      </footer>
+    </div>
+
+    <dialog class="sheet" id="calendar-dialog" aria-labelledby="calendar-title">
+      <form method="dialog" id="calendar-form">
+        <p class="eyebrow">Calendar file (.ics)</p>
+        <h2 id="calendar-title"></h2>
+        <p class="sheet-copy">Every session repeats weekly. Works with Google Calendar, Apple Calendar, and Outlook.</p>
+        <div class="fields">
+          <label class="field">
+            <span>First week starts</span>
+            <input type="date" id="calendar-start" required />
+          </label>
+          <label class="field">
+            <span>Repeat for</span>
+            <span class="field-suffix"><input type="number" id="calendar-weeks" min="1" max="30" value="12" required /><em>weeks</em></span>
+          </label>
+          <label class="field">
+            <span>Reminder</span>
+            <select id="calendar-reminder">
+              <option value="0">None</option>
+              <option value="10">10 minutes before</option>
+              <option value="15" selected>15 minutes before</option>
+              <option value="30">30 minutes before</option>
+              <option value="60">1 hour before</option>
+            </select>
+          </label>
+        </div>
+        <p class="sheet-summary" id="calendar-summary"></p>
+        <div class="sheet-actions">
+          <button class="button" type="submit" value="cancel" formnovalidate>Cancel</button>
+          <button class="button button-solid" type="submit" value="download" id="calendar-download">Download .ics</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <noscript><p class="noscript">This timetable needs JavaScript to show your group.</p></noscript>
+
+    <script src="data.js"></script>
+    <script src="model.js"></script>
+    <script src="ics.js"></script>
+    <script src="poster.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
