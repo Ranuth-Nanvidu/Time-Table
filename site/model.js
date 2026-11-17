@@ -31,6 +31,45 @@
 
   const sessionsFor = (group) => sessions.filter((session) => session.groups.includes(group));
 
+  const semester = data.semester ?? { start: null, weeks: null, holidays: [] };
+  const holidays = new Map(semester.holidays.map((holiday) => [holiday.date, holiday.name]));
+  const holidayOn = (isoDate) => holidays.get(isoDate) ?? null;
+  const shortHoliday = (name) => name.replace(/ Full Moon Poya Day$/, ' Poya').replace(/ Festival Day$| Day$/, '');
+
+  const sharedSessions = (groups) => sessions.filter((session) => groups.every((group) => session.groups.includes(group)));
+
+  // Windows of at least 30 minutes, inside the timetable's day, when none of the groups has a class.
+  function freeTogether(groups) {
+    const windows = [];
+    for (const day of days) {
+      const busy = sessions
+        .filter((session) => session.day === day.index && groups.some((group) => session.groups.includes(group)))
+        .sort((a, b) => a.start - b.start);
+      let cursor = dayStart;
+      for (const session of [...busy, { start: dayEnd, end: dayEnd }]) {
+        if (session.start - cursor >= 30) windows.push({ day: day.index, start: cursor, end: session.start });
+        cursor = Math.max(cursor, session.end);
+      }
+    }
+    return windows;
+  }
+
+  const roundHours = (minutes) => `${Math.round((minutes / 60) * 10) / 10} h`;
+
+  function compareSummary(groups) {
+    const shared = sharedSessions(groups);
+    const free = freeTogether(groups);
+    const longest = [...free].sort((a, b) => b.end - b.start - (a.end - a.start))[0];
+    return [
+      { value: String(shared.length), label: 'Shared sessions' },
+      { value: `${shared.reduce((total, session) => total + session.hours, 0)} h`, label: 'In class together' },
+      { value: roundHours(free.reduce((total, window) => total + window.end - window.start, 0)), label: 'Free together' },
+      longest
+        ? { value: data.days[longest.day].slice(0, 3), label: `Longest gap, ${roundHours(longest.end - longest.start)}` }
+        : { value: '–', label: 'No common gap' },
+    ];
+  }
+
   const cohortTitle = data.cohort.replace(/STAGE/i, 'Stage');
   const slug = (group) =>
     `${data.cohort}-group-${group}`
@@ -66,5 +105,13 @@
     slug,
     sessionsFor,
     summarise,
+    semester,
+    hasFeed: Boolean(semester.start && semester.weeks),
+    holidayOn,
+    shortHoliday,
+    sharedSessions,
+    freeTogether,
+    compareSummary,
+    roundHours,
   };
 })(globalThis);

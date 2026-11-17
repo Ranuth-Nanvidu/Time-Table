@@ -681,5 +681,103 @@ window.TIMETABLE = {
         "E"
       ]
     }
-  ]
+  ],
+  "semester": {
+    "start": null,
+    "weeks": null,
+    "holidays": [
+      {
+        "date": "2026-09-26",
+        "name": "Binara Full Moon Poya Day"
+      },
+      {
+        "date": "2026-10-25",
+        "name": "Vap Full Moon Poya Day"
+      },
+      {
+        "date": "2026-11-08",
+        "name": "Deepavali Festival Day"
+      },
+      {
+        "date": "2026-11-24",
+        "name": "Il Full Moon Poya Day"
+      },
+      {
+        "date": "2026-12-23",
+        "name": "Unduvap Full Moon Poya Day"
+      },
+      {
+        "date": "2026-12-25",
+        "name": "Christmas Day"
+      },
+      {
+        "date": "2027-01-15",
+        "name": "Tamil Thai Pongal Day"
+      },
+      {
+        "date": "2027-01-22",
+        "name": "Duruthu Full Moon Poya Day"
+      },
+      {
+        "date": "2027-02-04",
+        "name": "Independence Day"
+      },
+      {
+        "date": "2027-02-20",
+        "name": "Navam Full Moon Poya Day"
+      },
+      {
+        "date": "2027-03-06",
+        "name": "Mahasivarathri Day"
+      },
+      {
+        "date": "2027-03-10",
+        "name": "Id-Ul-Fitr (Ramazan Festival Day)"
+      },
+      {
+        "date": "2027-03-22",
+        "name": "Medin Full Moon Poya Day"
+      },
+      {
+        "date": "2027-03-26",
+        "name": "Good Friday"
+      },
+      {
+        "date": "2027-04-13",
+        "name": "Day Prior to Sinhala and Tamil New Year"
+      },
+      {
+        "date": "2027-04-14",
+        "name": "Sinhala and Tamil New Year Day"
+      },
+      {
+        "date": "2027-04-20",
+        "name": "Bak Full Moon Poya Day"
+      },
+      {
+        "date": "2027-05-01",
+        "name": "May Day"
+      },
+      {
+        "date": "2027-05-17",
+        "name": "Id-Ul-Alha (Hadji Festival Day)"
+      },
+      {
+        "date": "2027-05-19",
+        "name": "Vesak Full Moon Poya Day"
+      },
+      {
+        "date": "2027-05-20",
+        "name": "Day Following Vesak Full Moon Poya Day"
+      },
+      {
+        "date": "2027-06-18",
+        "name": "Poson Full Moon Poya Day"
+      },
+      {
+        "date": "2027-07-18",
+        "name": "Esala Full Moon Poya Day"
+      }
+    ]
+  }
 };

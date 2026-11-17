@@ -24,14 +24,32 @@ To preview locally, open `site/index.html` in a browser.
 
 The script rewrites `site/data.js`. It stops with an error if a cell's printed time disagrees with its position in the grid, or if a shared session is missing from one of the groups it names.
 
+## Semester dates and holidays
+
+`config/semester.json` holds what the FET export doesn't:
+
+- `start`: the Monday of week 1, as `YYYY-MM-DD`.
+- `weeks`: how many teaching weeks, from 1 to 30.
+- `holidays`: single days as `{ "date", "name" }`, or ranges such as a study week as `{ "from", "to", "name" }`.
+
+When `start` and `weeks` are set, the build writes one subscribable calendar feed per group to `site/cal/`. Students who subscribe get timetable changes automatically. Until both are set, the build warns, skips the feeds, and the site hides the Subscribe option. Classes on holiday dates are left out of both the feeds and the downloaded `.ics`, and the site shows when today is a holiday.
+
+The build stops with an error if a date is malformed, `start` isn't a Monday, `weeks` is out of range, or a range runs backwards. Check the holiday list against the government gazette each year.
+
+## Compare groups
+
+Pick "Compare with" under the group letters to see the classes two or more groups share and the free time they have in common. The URL updates to, for example, `#B+C`, so you can send it to a friend.
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `scripts/build-data.mjs` | Parses the FET export into one list of sessions, each with the groups that attend it. |
+| `config/semester.json` | Semester start, length, and holidays. Edit by hand. |
 | `site/data.js` | Generated data. Do not edit by hand. |
-| `site/model.js` | Derived values: display labels, visible days, hour range, per-group statistics. |
-| `site/app.js` | Group picker, grid, phone agenda, next-class card, downloads. |
+| `site/cal/` | Generated calendar feeds, one per group. Not committed. |
+| `site/model.js` | Derived values: display labels, visible days, hour range, per-group and compare statistics, holidays. |
+| `site/app.js` | Group picker, compare mode, grid, phone agenda, next-class card, downloads, calendar subscription. |
 | `site/poster.js` | Draws the PNG on a canvas at 3200 px wide. |
 | `site/ics.js` | Builds the calendar file. Times use the `Asia/Colombo` zone. |
 | `site/styles.css` | Light and dark themes. Module colours are the `--m0` to `--m4` tokens. |

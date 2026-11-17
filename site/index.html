@@ -46,6 +46,11 @@
               <legend class="eyebrow">Choose your group</legend>
               <div class="picker-letters" id="picker"></div>
             </fieldset>
+            <div class="compare" id="compare-row">
+              <span class="eyebrow" id="compare-label">Compare with a friend's group</span>
+              <div class="compare-letters" id="compare" role="group" aria-labelledby="compare-label"></div>
+              <button class="compare-clear" id="compare-clear" type="button" hidden>Clear</button>
+            </div>
           </div>
           <aside class="next" id="next" aria-live="polite"></aside>
         </section>
@@ -55,11 +60,11 @@
           <div class="actions">
             <button class="button" id="download-image" type="button">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              Save as image
+              <span id="download-image-label">Save as image</span>
             </button>
             <button class="button button-solid" id="open-calendar" type="button">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4.5 9.5h15M8 3.5v3m8-3v3M6 5h12a1.5 1.5 0 0 1 1.5 1.5V18a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V6.5A1.5 1.5 0 0 1 6 5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              Add to calendar
+              <span id="open-calendar-label">Add to calendar</span>
             </button>
           </div>
         </section>
@@ -75,6 +80,7 @@
             <li><span class="swatch swatch-lecture"></span>Lecture</li>
             <li><span class="swatch swatch-tutorial"></span>Tutorial</li>
             <li><span class="swatch swatch-session"></span>Other session</li>
+            <li id="legend-free" hidden><span class="swatch swatch-free"></span>Free for every group you picked</li>
             <li><span class="dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>Groups in the room, <span id="legend-range"></span></li>
           </ul>
         </section>
@@ -89,32 +95,52 @@
 
     <dialog class="sheet" id="calendar-dialog" aria-labelledby="calendar-title">
       <form method="dialog" id="calendar-form">
-        <p class="eyebrow">Calendar file (.ics)</p>
+        <p class="eyebrow">Calendar</p>
         <h2 id="calendar-title"></h2>
-        <p class="sheet-copy">Every session repeats weekly. Works with Google Calendar, Apple Calendar, and Outlook.</p>
-        <div class="fields">
-          <label class="field">
-            <span>First week starts</span>
-            <input type="date" id="calendar-start" required />
-          </label>
-          <label class="field">
-            <span>Repeat for</span>
-            <span class="field-suffix"><input type="number" id="calendar-weeks" min="1" max="30" value="12" required /><em>weeks</em></span>
-          </label>
-          <label class="field">
-            <span>Reminder</span>
-            <select id="calendar-reminder">
-              <option value="0">None</option>
-              <option value="10">10 minutes before</option>
-              <option value="15" selected>15 minutes before</option>
-              <option value="30">30 minutes before</option>
-              <option value="60">1 hour before</option>
-            </select>
-          </label>
+        <div class="segmented" id="calendar-mode" role="radiogroup" aria-label="How to add the timetable" hidden>
+          <input type="radio" name="calendar-mode" id="mode-subscribe" value="subscribe" checked />
+          <label for="mode-subscribe">Subscribe</label>
+          <input type="radio" name="calendar-mode" id="mode-download" value="download" />
+          <label for="mode-download">Download file</label>
         </div>
-        <p class="sheet-summary" id="calendar-summary"></p>
+
+        <div id="pane-subscribe" hidden>
+          <p class="sheet-copy">Your calendar stays in sync. If the timetable changes, the update usually reaches you within a day. Classes on public holidays and Poya days are already left out.</p>
+          <div class="subscribe-links">
+            <a class="button button-solid" id="subscribe-google" target="_blank" rel="noopener">Google Calendar</a>
+            <a class="button" id="subscribe-webcal">Apple Calendar or Outlook</a>
+            <button class="button" type="button" id="subscribe-copy">Copy feed link</button>
+          </div>
+          <p class="sheet-summary feed-url" id="feed-url"></p>
+        </div>
+
+        <div id="pane-download">
+          <p class="sheet-copy">Every session repeats weekly, skipping public holidays and Poya days. Works with Google Calendar, Apple Calendar, and Outlook. A downloaded file won't update itself if the timetable changes.</p>
+          <div class="fields">
+            <label class="field">
+              <span>First week starts</span>
+              <input type="date" id="calendar-start" required />
+            </label>
+            <label class="field">
+              <span>Repeat for</span>
+              <span class="field-suffix"><input type="number" id="calendar-weeks" min="1" max="30" value="12" required /><em>weeks</em></span>
+            </label>
+            <label class="field">
+              <span>Reminder</span>
+              <select id="calendar-reminder">
+                <option value="0">None</option>
+                <option value="10">10 minutes before</option>
+                <option value="15" selected>15 minutes before</option>
+                <option value="30">30 minutes before</option>
+                <option value="60">1 hour before</option>
+              </select>
+            </label>
+          </div>
+          <p class="sheet-summary" id="calendar-summary"></p>
+        </div>
+
         <div class="sheet-actions">
-          <button class="button" type="submit" value="cancel" formnovalidate>Cancel</button>
+          <button class="button" type="submit" value="cancel" formnovalidate id="calendar-cancel">Cancel</button>
           <button class="button button-solid" type="submit" value="download" id="calendar-download">Download .ics</button>
         </div>
       </form>
