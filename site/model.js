@@ -19,6 +19,7 @@
       hours: (session.end - session.start) / 60,
       time: `${clock(session.start)}–${clock(session.end)}`,
       hue: modules.indexOf(session.module) % 5,
+      meetings: session.meetings ?? [],
     };
   });
 
@@ -30,6 +31,10 @@
   const dayEnd = Math.max(...sessions.map((session) => session.end));
 
   const sessionsFor = (group) => sessions.filter((session) => session.groups.includes(group));
+
+  // The Teams links a session offers to any of `groups`. A group split across meetings gets more than one.
+  const meetingsFor = (session, groups) =>
+    session.meetings.filter((meeting) => meeting.groups.some((group) => groups.includes(group)));
 
   const semester = data.semester ?? { start: null, weeks: null, holidays: [] };
   const holidays = new Map(semester.holidays.map((holiday) => [holiday.date, holiday.name]));
@@ -104,6 +109,7 @@
     clock,
     slug,
     sessionsFor,
+    meetingsFor,
     summarise,
     semester,
     hasFeed: Boolean(semester.start && semester.weeks),

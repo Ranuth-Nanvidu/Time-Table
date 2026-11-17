@@ -61,7 +61,9 @@
 
     for (const session of timetable.sessionsFor(group)) {
       const date = firstOccurrence(startDate, session.day);
+      const meetings = timetable.meetingsFor(session, [group]);
       const details = [
+        ...meetings.map((meeting) => (meetings.length > 1 ? `Join (${meeting.label}): ${meeting.url}` : `Join: ${meeting.url}`)),
         session.staff.length ? `Staff: ${session.staff.join(', ')}` : null,
         `Groups: ${session.groups.join(', ')}`,
         `${data.cohort}, ${data.institution}`,
@@ -82,6 +84,7 @@
       }
       lines.push(`SUMMARY:${escapeText(session.headline)}`);
       if (session.place) lines.push(`LOCATION:${escapeText(session.place)}`);
+      if (meetings.length === 1) lines.push(`URL:${meetings[0].url}`);
       lines.push(`DESCRIPTION:${escapeText(details.join('\n'))}`);
       if (reminderMinutes > 0) {
         lines.push(

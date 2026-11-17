@@ -36,6 +36,14 @@ When `start` and `weeks` are set, the build writes one subscribable calendar fee
 
 The build stops with an error if a date is malformed, `start` isn't a Monday, `weeks` is out of range, or a range runs backwards. Check the holiday list against the government gazette each year.
 
+## Online meeting links
+
+`config/meetings.json` holds the Microsoft Teams link for each online session. An entry attaches to every online session with the same `module` and `kind`, and `groups` says who the meeting is for. A group split across two meetings, such as B in the CM2603 tutorial, is listed in both, and its students see both links with a note to join the one they were assigned to.
+
+On the site, online tiles show a Join tag. Clicking one opens a sheet with a Join in Teams button and a Copy link button. The next-class card also shows a Join button when the next class is online. Downloaded calendar files and feeds include the links in each event.
+
+The build stops if an entry has a missing label, a URL that isn't `https://`, or matches no online session. It warns when an online session has a group with no link.
+
 ## Compare groups
 
 Pick "Compare with" under the group letters to see the classes two or more groups share and the free time they have in common. The URL updates to, for example, `#B+C`, so you can send it to a friend.
@@ -46,6 +54,7 @@ Pick "Compare with" under the group letters to see the classes two or more group
 | --- | --- |
 | `scripts/build-data.mjs` | Parses the FET export into one list of sessions, each with the groups that attend it. |
 | `config/semester.json` | Semester start, length, and holidays. Edit by hand. |
+| `config/meetings.json` | Teams links for online sessions. Edit by hand. |
 | `site/data.js` | Generated data. Do not edit by hand. |
 | `site/cal/` | Generated calendar feeds, one per group. Not committed. |
 | `site/model.js` | Derived values: display labels, visible days, hour range, per-group and compare statistics, holidays. |

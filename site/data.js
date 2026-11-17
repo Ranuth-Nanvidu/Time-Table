@@ -40,6 +40,19 @@ window.TIMETABLE = {
         "C",
         "D",
         "E"
+      ],
+      "meetings": [
+        {
+          "label": "All groups",
+          "url": "https://teams.microsoft.com/meet/368242446115722?p=gl2XFa3lAEiJ8omC01",
+          "groups": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+          ]
+        }
       ]
     },
     {
@@ -63,6 +76,24 @@ window.TIMETABLE = {
         "A",
         "B",
         "C"
+      ],
+      "meetings": [
+        {
+          "label": "Group A & 1/2 B",
+          "url": "https://teams.microsoft.com/l/chat/19:meeting_ZWExZGUwYjktYTllOC00YmQ1LThhOWItZDUzNzliODVjY2My@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D",
+          "groups": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "label": "Group 1/2 B & C",
+          "url": "https://teams.microsoft.com/l/chat/19:meeting_ZWExZGUwYjktYTllOC00YmQ1LThhOWItZDUzNzliODVjY2My@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D",
+          "groups": [
+            "B",
+            "C"
+          ]
+        }
       ]
     },
     {
@@ -85,6 +116,23 @@ window.TIMETABLE = {
       "groups": [
         "D",
         "E"
+      ],
+      "meetings": [
+        {
+          "label": "Group 3/4 D",
+          "url": "https://teams.microsoft.com/meet/315372557117545?p=rrSPLQy29jBWaRBnNF",
+          "groups": [
+            "D"
+          ]
+        },
+        {
+          "label": "Group 1/4 D & E",
+          "url": "https://teams.microsoft.com/meet/338811732983784?p=EVdrLbinvczVLje09v",
+          "groups": [
+            "D",
+            "E"
+          ]
+        }
       ]
     },
     {
