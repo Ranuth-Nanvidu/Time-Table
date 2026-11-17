@@ -76,25 +76,53 @@
   }
 
   const cohortTitle = data.cohort.replace(/STAGE/i, 'Stage');
-  const slug = (group) =>
-    `${data.cohort}-group-${group}`
+  const slugify = (text) =>
+    text
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
+  const slug = (group) => slugify(`${data.cohort}-group-${group}`);
 
-  function summarise(group) {
-    const own = sessionsFor(group);
-    const sum = (list) => list.reduce((total, session) => total + session.hours, 0);
+  function summariseSessions(list) {
+    const sum = (items) => items.reduce((total, session) => total + session.hours, 0);
     const busiest = days
-      .map((day) => ({ day, hours: sum(own.filter((session) => session.day === day.index)) }))
+      .map((day) => ({ day, hours: sum(list.filter((session) => session.day === day.index)) }))
       .sort((a, b) => b.hours - a.hours)[0];
     return [
-      { value: `${sum(own)} h`, label: 'Per week' },
-      { value: String(own.length), label: 'Sessions' },
-      { value: `${sum(own.filter((session) => session.online))} h`, label: 'Online' },
-      { value: busiest.day.short, label: `Busiest day, ${busiest.hours} h` },
+      { value: `${sum(list)} h`, label: 'Per week' },
+      { value: String(list.length), label: 'Sessions' },
+      { value: `${sum(list.filter((session) => session.online))} h`, label: 'Online' },
+      busiest && busiest.hours
+        ? { value: busiest.day.short, label: `Busiest day, ${busiest.hours} h` }
+        : { value: '–', label: 'Busiest day' },
     ];
   }
+
+  const summarise = (group) => summariseSessions(sessionsFor(group));
+
+  const overlaps = (a, b) => a.day === b.day && a.start < b.end && b.start < a.end;
+
+  // What a student must attend each week, one entry per module part, such as "CM2607 Tutorial".
+  // `need` is how many of `options` a group takes, the most any one group takes.
+  const KIND_ORDER = ['lecture', 'tutorial'];
+  const componentKey = (session) => [session.module, session.variant ?? '', session.kind, session.title ?? ''].join('|');
+  const components = [...new Set(sessions.map(componentKey))]
+    .map((key) => {
+      const options = sessions
+        .filter((session) => componentKey(session) === key)
+        .sort((a, b) => a.day - b.day || a.start - b.start);
+      const need = Math.max(...data.groups.map((group) => options.filter((session) => session.groups.includes(group)).length));
+      const [first] = options;
+      return { key, module: first.module, name: first.name, kind: first.kind, kindLabel: first.kindLabel, hue: first.hue, need, options };
+    })
+    .filter((component) => component.need > 0)
+    .sort(
+      (a, b) =>
+        a.module.localeCompare(b.module) ||
+        a.name.localeCompare(b.name) ||
+        (KIND_ORDER.indexOf(a.kind) + 1 || 9) - (KIND_ORDER.indexOf(b.kind) + 1 || 9),
+    );
+  const componentOf = (session) => components.find((component) => component.key === componentKey(session));
 
   root.Timetable = {
     data,
@@ -108,9 +136,14 @@
     cohortTitle,
     clock,
     slug,
+    slugify,
     sessionsFor,
     meetingsFor,
     summarise,
+    summariseSessions,
+    overlaps,
+    components,
+    componentOf,
     semester,
     hasFeed: Boolean(semester.start && semester.weeks),
     holidayOn,

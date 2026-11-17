@@ -182,12 +182,18 @@
     pen.write(`Groups in the room, ${T.groups[0]} to ${T.groups[T.groups.length - 1]}`, dotsLeft + 61, y, label);
   }
 
-  async function renderPoster(group) {
+  // `group` draws that group's week. `options` draws any sessions under a custom heading instead.
+  async function renderPoster(group, options = {}) {
+    const {
+      sessions: own = T.sessionsFor(group),
+      word = 'Group',
+      mark = group,
+      stats = T.summarise(group),
+    } = options;
     const fonts = [`400 250px ${SERIF}`, `italic 400 64px ${SERIF}`, `400 15px ${SANS}`, `400 13px ${MONO}`, `500 13px ${MONO}`, `600 19px ${MONO}`];
     await Promise.all(fonts.map((font) => document.fonts.load(font))).catch(() => {});
 
     const palette = readPalette();
-    const own = T.sessionsFor(group);
     const lanesTop = GRID_TOP + HEAD;
     const lanesHeight = T.hourCount * ROW;
     const footerY = lanesTop + lanesHeight + 58;
@@ -221,11 +227,14 @@
 
     const baseline = 312;
     const wordStyle = { font: `italic 400 64px ${SERIF}`, color: palette.muted };
-    pen.write('Group', MARGIN, baseline, wordStyle);
-    pen.write(group, MARGIN + pen.width('Group', wordStyle) + 24, baseline, { font: `400 250px ${SERIF}`, color: palette.ink });
-
-    const stats = T.summarise(group);
     const statWidth = 196;
+    pen.write(word, MARGIN, baseline, wordStyle);
+    // A word longer than a group letter shrinks to stay clear of the stats.
+    const markLeft = MARGIN + pen.width(word, wordStyle) + 24;
+    const markRoom = WIDTH - MARGIN - statWidth * stats.length - 32 - markLeft;
+    const markSize = Math.min(250, Math.floor((250 * markRoom) / pen.width(mark, { font: `400 250px ${SERIF}`, color: palette.ink })));
+    pen.write(mark, markLeft, baseline, { font: `400 ${markSize}px ${SERIF}`, color: palette.ink });
+
     stats.forEach((stat, index) => {
       const x = WIDTH - MARGIN - statWidth * (stats.length - index) + 26;
       if (index > 0) rule(x - 26.5, baseline - 76, x - 26.5, baseline + 2);
