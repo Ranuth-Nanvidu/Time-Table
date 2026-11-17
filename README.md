@@ -50,6 +50,18 @@ The bar above the timetable shows which week you're looking at. Use the arrows t
 
 You can browse from the semester start, or from this week if that's later, through the last teaching week. Until `start` and `weeks` are set, you can browse up to the last holiday in `config/semester.json`. When the dates are set, the bar also shows the teaching week number.
 
+## Build your own timetable
+
+`custom.html`, linked as "Build your own" in the header, lets a student mix slots from different groups. Each module is split into the parts every group attends each week, such as the CM2607 lecture and the CM2607 tutorial. The student picks one slot for each part, so the week always covers the same number of sessions per module as a group's week. Parts with only one slot, such as a lecture all groups share, are picked automatically.
+
+- Start from a group copies that group's slots, so you only swap the ones you want.
+- Fill the rest picks a slot for every open part with no clashes, where possible.
+- A slot that overlaps one you already picked is marked, and clashing tiles sit side by side in the preview.
+- Save as image draws the week as a PNG. Download .ics works like the group calendar file and skips holidays.
+- Picks are saved in the browser and in the URL, so Copy link shares the exact week.
+
+The parts come from the data, so a new FET export needs no changes here. The URL stores session ids, so links made before a timetable update may lose picks whose sessions changed.
+
 ## Compare groups
 
 Pick "Compare with" under the group letters to see the classes two or more groups share and the free time they have in common. The URL updates to, for example, `#B+C`, so you can send it to a friend.
@@ -63,8 +75,9 @@ Pick "Compare with" under the group letters to see the classes two or more group
 | `config/meetings.json` | Teams links for online sessions. Edit by hand. |
 | `site/data.js` | Generated data. Do not edit by hand. |
 | `site/cal/` | Generated calendar feeds, one per group. Not committed. |
-| `site/model.js` | Derived values: display labels, visible days, hour range, per-group and compare statistics, holidays. |
+| `site/model.js` | Derived values: display labels, visible days, hour range, per-group and compare statistics, holidays, the weekly parts each module needs. |
 | `site/app.js` | Group picker, compare mode, grid, phone agenda, next-class card, downloads, calendar subscription. |
-| `site/poster.js` | Draws the PNG on a canvas at 3200 px wide. |
-| `site/ics.js` | Builds the calendar file. Times use the `Asia/Colombo` zone. |
+| `site/custom.html`, `site/custom.js` | The build-your-own page: slot picker, clash checks, preview, image and calendar downloads. |
+| `site/poster.js` | Draws the PNG on a canvas at 3200 px wide, for a group or a custom week. |
+| `site/ics.js` | Builds the calendar file for a group or any list of sessions. Times use the `Asia/Colombo` zone. |
 | `site/styles.css` | Light and dark themes. Module colours are the `--m0` to `--m4` tokens. |

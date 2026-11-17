@@ -35,10 +35,23 @@
     return dates;
   }
 
-  function buildCalendar({ timetable, group, startDate, weeks, reminderMinutes = 0, holidays = [], feed = false, now = new Date() }) {
+  // Pass `group` for a group's timetable, or `sessions` with `name` and `uid` for any other set of sessions.
+  function buildCalendar({
+    timetable,
+    group,
+    sessions = timetable.sessionsFor(group),
+    name = `Group ${group}`,
+    uid = timetable.slug(group),
+    startDate,
+    weeks,
+    reminderMinutes = 0,
+    holidays = [],
+    feed = false,
+    now = new Date(),
+  }) {
     const { data } = timetable;
     const zone = data.timezone;
-    const calendarName = `${timetable.cohortTitle} Group ${group}`;
+    const calendarName = `${timetable.cohortTitle} ${name}`;
     const lines = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -59,9 +72,9 @@
       'END:VTIMEZONE',
     ];
 
-    for (const session of timetable.sessionsFor(group)) {
+    for (const session of sessions) {
       const date = firstOccurrence(startDate, session.day);
-      const meetings = timetable.meetingsFor(session, [group]);
+      const meetings = timetable.meetingsFor(session, group ? [group] : session.groups);
       const details = [
         ...meetings.map((meeting) => (meetings.length > 1 ? `Join (${meeting.label}): ${meeting.url}` : `Join: ${meeting.url}`)),
         session.staff.length ? `Staff: ${session.staff.join(', ')}` : null,
@@ -71,7 +84,7 @@
 
       lines.push(
         'BEGIN:VEVENT',
-        `UID:${timetable.slug(group)}-${session.day}-${session.start}-${session.name.replace(/\s/g, '')}-${session.kind}@timetable`,
+        `UID:${uid}-${session.day}-${session.start}-${session.name.replace(/\s/g, '')}-${session.kind}@timetable`,
         `DTSTAMP:${utcStamp(now)}`,
         `DTSTART;TZID=${zone}:${localStamp(date, session.start)}`,
         `DTEND;TZID=${zone}:${localStamp(date, session.end)}`,
