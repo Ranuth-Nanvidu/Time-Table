@@ -1,0 +1,39 @@
+{
+  "_note": "Edit by hand. Teams links for online sessions. Each entry attaches to every online session with the same module and kind. groups lists who the meeting is for: a group split across two meetings (B and D) is listed in both. Leave groups out when the meeting is for everyone in the session. The build stops if an entry matches no online session.",
+  "meetings": [
+    {
+      "module": "CM2603",
+      "kind": "lecture",
+      "label": "All groups",
+      "url": "https://teams.microsoft.com/meet/368242446115722?p=gl2XFa3lAEiJ8omC01"
+    },
+    {
+      "module": "CM2603",
+      "kind": "tutorial",
+      "label": "Group A & 1/2 B",
+      "groups": ["A", "B"],
+      "url": "https://teams.microsoft.com/l/chat/19:meeting_ZWExZGUwYjktYTllOC00YmQ1LThhOWItZDUzNzliODVjY2My@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D"
+    },
+    {
+      "module": "CM2603",
+      "kind": "tutorial",
+      "label": "Group 1/2 B & C",
+      "groups": ["B", "C"],
+      "url": "https://teams.microsoft.com/l/chat/19:meeting_ZWExZGUwYjktYTllOC00YmQ1LThhOWItZDUzNzliODVjY2My@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D"
+    },
+    {
+      "module": "CM2603",
+      "kind": "tutorial",
+      "label": "Group 3/4 D",
+      "groups": ["D"],
+      "url": "https://teams.microsoft.com/meet/315372557117545?p=rrSPLQy29jBWaRBnNF"
+    },
+    {
+      "module": "CM2603",
+      "kind": "tutorial",
+      "label": "Group 1/4 D & E",
+      "groups": ["D", "E"],
+      "url": "https://teams.microsoft.com/meet/338811732983784?p=EVdrLbinvczVLje09v"
+    }
+  ]
+}

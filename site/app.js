@@ -131,9 +131,19 @@
       .filter(Boolean)
       .join('\n');
 
-  const tileAttrs = (session, layout, index, style = '') =>
-    `class="tile ${layout} is-${session.kind}" data-module="${esc(session.module)}" title="${esc(tooltip(session))}" ` +
-    `style="--hue:var(--m${session.hue});--i:${index};${style}"`;
+  const joinable = (session) => T.meetingsFor(session, party()).length > 0;
+  const joinHTML = (session) => (joinable(session) ? '<span class="join-pill">Join</span>' : '');
+
+  // Online tiles with a Teams link open the join sheet, so they act as buttons.
+  function tileAttrs(session, layout, index, style = '') {
+    const join = joinable(session);
+    return (
+      `class="tile ${layout} is-${session.kind}${join ? ' has-join' : ''}" data-module="${esc(session.module)}" ` +
+      (join ? `data-session="${session.id}" role="button" aria-haspopup="dialog" ` : '') +
+      (join || layout === 'block' ? 'tabindex="0" ' : '') +
+      `title="${esc(tooltip(session))}" style="--hue:var(--m${session.hue});--i:${index};${style}"`
+    );
+  }
 
   function renderPicker() {
     $('#picker').innerHTML = T.groups
@@ -204,9 +214,9 @@
       const row = (session.start - T.dayStart) / 60 + 2;
       const place = `grid-column:${column(session.day)};grid-row:${row} / span ${session.hours}`;
       return (
-        `<article ${tileAttrs(session, 'block', index, place)} data-span="${session.hours}" tabindex="0">` +
+        `<article ${tileAttrs(session, 'block', index, place)} data-span="${session.hours}">` +
         `<div class="block-top">${codeHTML(session)}${dotsHTML(session)}</div>` +
-        `<div class="block-kind">${esc(session.kindLabel)}</div>` +
+        `<div class="block-kind">${esc(session.kindLabel)}${joinHTML(session)}</div>` +
         `<div class="block-meta"><span>${session.time}</span><span>${esc([session.place, staffShort(session)].filter(Boolean).join(' · '))}</span></div>` +
         '</article>'
       );
@@ -240,7 +250,7 @@
             html:
               `<article ${tileAttrs(session, 'row', index++)}>` +
               `<div class="row-time">${T.clock(session.start)}<span>${T.clock(session.end)}</span></div>` +
-              `<div>${codeHTML(session)}<div class="row-kind">${esc(session.kindLabel)}</div>` +
+              `<div>${codeHTML(session)}<div class="row-kind">${esc(session.kindLabel)}${joinHTML(session)}</div>` +
               `<div class="row-meta">${esc([session.place, session.staff.join(', ')].filter(Boolean).join(' · '))}</div></div>` +
               dotsHTML(session) +
               '</article>',
@@ -284,6 +294,7 @@
     let title;
     let meta;
     let hue;
+    let join = '';
     const result = comparing()
       ? nextOf(T.freeTogether(party()), now)
       : nextOf(T.sessionsFor(state.group), now);
@@ -305,6 +316,11 @@
       title = `${esc(session.name)} <em>${esc(session.kindLabel)}</em>`;
       meta = [`${cardWhen(result, now, session.day)} ${session.time}`, session.place, staffShort(session)].filter(Boolean).map(esc).join(' · ');
       hue = `var(--m${session.hue})`;
+      if (joinable(session)) {
+        join =
+          `<button class="button button-solid next-join" type="button" data-session="${session.id}" aria-haspopup="dialog">` +
+          `${result.live ? 'Join now' : 'Join link'}</button>`;
+      }
     }
 
     next.classList.toggle('is-live', Boolean(result?.live));
@@ -315,7 +331,8 @@
       (result ? `<span>${result.live ? `${span(result.wait)} left` : `in ${span(result.wait)}`}</span>` : '') +
       '</p>' +
       `<p class="next-title">${title}</p>` +
-      `<p class="next-meta">${meta}</p>`;
+      `<p class="next-meta">${meta}</p>` +
+      join;
 
     const grid = $('#grid');
     grid.querySelector('.now')?.remove();
@@ -408,6 +425,38 @@
     } finally {
       button.disabled = false;
     }
+  }
+
+  const joinDialog = $('#join-dialog');
+
+  function openJoin(id) {
+    const session = T.sessions.find((entry) => entry.id === id);
+    const meetings = session ? T.meetingsFor(session, party()) : [];
+    if (!meetings.length) return;
+    const now = zoneNow();
+    const live = !T.holidayOn(now.date) && now.day === session.day && session.start <= now.minutes && now.minutes < session.end;
+    const mine = meetings.filter((meeting) => meeting.groups.includes(state.group)).length;
+    const staff = session.staff.length ? `With ${session.staff.join(', ')}. ` : '';
+
+    $('#join-when').textContent = live ? `Happening now · ${session.time}` : `${dayName(session)} ${session.time} · Online`;
+    $('#join-title').textContent = session.headline;
+    $('#join-copy').textContent =
+      mine > 1
+        ? `Group ${state.group} is split across ${mine} Teams meetings. Join the one you were assigned to.`
+        : meetings.length > 1
+          ? `This ${session.kindLabel.toLowerCase()} runs as ${meetings.length} separate Teams meetings. Join the one for your group.`
+          : `${staff}Opens in Microsoft Teams.`;
+    $('#join-list').innerHTML = meetings
+      .map(
+        (meeting) =>
+          `<div class="join-option">` +
+          (meetings.length > 1 ? `<p class="join-label">${esc(meeting.label)}</p>` : '') +
+          `<a class="button button-solid" href="${esc(meeting.url)}" target="_blank" rel="noopener">Join in Teams</a>` +
+          `<button class="button" type="button" data-copy="${esc(meeting.url)}">Copy link</button>` +
+          '</div>',
+      )
+      .join('');
+    joinDialog.showModal();
   }
 
   const dialog = $('#calendar-dialog');
@@ -553,6 +602,43 @@
       toast('Could not copy. Select the link below instead.');
     }
   });
+  const tileJoin = (event) => {
+    const tile = event.target.closest('.tile[data-session]');
+    if (tile) openJoin(tile.dataset.session);
+  };
+  const tileJoinKey = (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.tile[data-session]')) {
+      event.preventDefault();
+      openJoin(event.target.dataset.session);
+    }
+  };
+  for (const container of [$('#grid'), $('#agenda')]) {
+    container.addEventListener('click', tileJoin);
+    container.addEventListener('keydown', tileJoinKey);
+  }
+  $('#next').addEventListener('click', (event) => {
+    const button = event.target.closest('.next-join');
+    if (button) openJoin(button.dataset.session);
+  });
+  $('#join-list').addEventListener('click', async (event) => {
+    if (event.target.closest('a')) {
+      joinDialog.close('join');
+      return;
+    }
+    const button = event.target.closest('[data-copy]');
+    if (!button) return;
+    try {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      button.textContent = 'Copied';
+    } catch (error) {
+      button.textContent = 'Could not copy';
+    }
+    setTimeout(() => (button.textContent = 'Copy link'), 2000);
+  });
+  joinDialog.addEventListener('click', (event) => {
+    if (event.target === joinDialog) joinDialog.close('cancel');
+  });
+
   dialog.addEventListener('close', () => {
     if (dialog.returnValue === 'download') saveCalendar();
   });
