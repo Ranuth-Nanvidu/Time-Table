@@ -44,6 +44,12 @@ On the site, online tiles show a Join tag. Clicking one opens a sheet with a Joi
 
 The build stops if an entry has a missing label, a URL that isn't `https://`, or matches no online session. It warns when an online session has a group with no link.
 
+## Browse weeks
+
+The bar above the timetable shows which week you're looking at. Use the arrows to step a week back or forward, click the dates to jump to the week containing any date, or click "This week" to come back. Each day shows its date. Holidays in the chosen week are listed beside the bar with how many of your classes they cancel, and those classes are faded and struck through.
+
+You can browse from the semester start, or from this week if that's later, through the last teaching week. Until `start` and `weeks` are set, you can browse up to the last holiday in `config/semester.json`. When the dates are set, the bar also shows the teaching week number.
+
 ## Compare groups
 
 Pick "Compare with" under the group letters to see the classes two or more groups share and the free time they have in common. The URL updates to, for example, `#B+C`, so you can send it to a friend.

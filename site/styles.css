@@ -139,7 +139,7 @@ select {
   border-color: var(--ink);
 }
 
-:root[data-theme='dark'] .icon-button {
+:root[data-theme='dark'] #theme-toggle {
   transform: rotate(180deg);
 }
 
@@ -447,6 +447,104 @@ h1 em {
   margin-top: 26px;
 }
 
+.week-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-nav .icon-button[disabled] {
+  opacity: 0.35;
+  cursor: default;
+  border-color: var(--line);
+}
+
+.week-label {
+  position: relative;
+}
+
+.week-label button {
+  display: grid;
+  gap: 3px;
+  min-width: 190px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.week-label button:hover {
+  background: var(--paper-2);
+}
+
+.week-label button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.week-label strong {
+  font: 400 22px/1.1 var(--serif);
+}
+
+.week-label input {
+  position: absolute;
+  inset: auto 0 0;
+  width: 100%;
+  height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.week-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+}
+
+.week-notes li {
+  padding: 6px 11px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  font: 500 11px/1.3 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.week-notes li.is-holiday {
+  box-shadow: inset 0 0 0 1px currentColor;
+  background: color-mix(in srgb, var(--m2) 6%, transparent);
+  color: var(--m2);
+}
+
+.day-date {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.agenda-date {
+  align-self: center;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
 .board-head {
   display: flex;
   flex-wrap: wrap;
@@ -702,6 +800,19 @@ h1 em {
 .tile.is-dim {
   opacity: 0.22;
   filter: saturate(0.4);
+}
+
+.tile.is-off {
+  opacity: 0.38;
+  filter: grayscale(0.7);
+}
+
+.tile.is-off .code {
+  text-decoration: line-through;
+}
+
+.tile.is-off.is-dim {
+  opacity: 0.18;
 }
 
 .tile.has-join {
@@ -1222,6 +1333,25 @@ h1 em {
 }
 
 @media (max-width: 480px) {
+  .week-nav {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .week-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .week-label button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .week-label strong {
+    font-size: 19px;
+  }
+
   .stat {
     flex: 1 1 50%;
     padding: 0 0 0 16px;

@@ -70,6 +70,25 @@
         </section>
 
         <section class="board" id="board" aria-label="Weekly timetable">
+          <div class="week-bar">
+            <nav class="week-nav" aria-label="Choose a week">
+              <button class="icon-button" id="week-prev" type="button" aria-label="Previous week">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+              <div class="week-label">
+                <button type="button" id="week-pick" aria-describedby="week-relative" title="Jump to a date">
+                  <span class="eyebrow" id="week-relative"></span>
+                  <strong id="week-range" aria-live="polite"></strong>
+                </button>
+                <input type="date" id="week-date" tabindex="-1" aria-hidden="true" />
+              </div>
+              <button class="icon-button" id="week-next" type="button" aria-label="Next week">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </button>
+              <button class="compare-clear" id="week-today" type="button" hidden>This week</button>
+            </nav>
+            <ul class="week-notes" id="week-notes"></ul>
+          </div>
           <div class="board-head">
             <div class="chips" id="chips" role="group" aria-label="Highlight a module"></div>
             <p class="note">Sri Lanka time, UTC+5:30</p>

@@ -27,6 +27,9 @@
   const weekdayOf = (iso) => (new Date(`${iso}T00:00:00Z`).getUTCDay() + 6) % 7;
   const prettyDay = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   const prettyDate = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const dayMonthYear = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const mondayOf = (iso) => addDays(iso, -weekdayOf(iso));
   const formatIso = (formatter, iso) => formatter.format(new Date(`${iso}T00:00:00Z`));
 
   // "#B" shows one group. "#B+C+D" compares B with C and D.
@@ -72,6 +75,30 @@
   }
 
   const thisWeek = (now, dayIndex) => addDays(now.date, dayIndex - now.day);
+
+  state.week = mondayOf(zoneNow().date);
+  const weekDate = (dayIndex) => addDays(state.week, dayIndex);
+  const viewingThisWeek = (now) => state.week === mondayOf(now.date);
+  const isToday = (now, dayIndex) => dayIndex === now.day && viewingThisWeek(now);
+
+  // From semester start (or this week) to semester end, else the last listed holiday, else half a year ahead.
+  function weekBounds(now) {
+    const current = mondayOf(now.date);
+    const { start, weeks, holidays } = T.semester;
+    const lastHoliday = holidays.reduce((latest, holiday) => (holiday.date > latest ? holiday.date : latest), '');
+    const end = start && weeks ? addDays(start, (weeks - 1) * 7) : lastHoliday ? mondayOf(lastHoliday) : addDays(current, 26 * 7);
+    return {
+      min: start && start < current ? start : current,
+      max: end > current ? end : current,
+    };
+  }
+
+  // 1-based teaching week, or null outside the semester or when its dates aren't set.
+  function semesterWeek(monday) {
+    if (!T.semester.start) return null;
+    const week = daysBetween(T.semester.start, monday) / 7 + 1;
+    return week >= 1 && (!T.semester.weeks || week <= T.semester.weeks) ? week : null;
+  }
 
   // Today, or the first day of the semester while that is still ahead.
   const searchFrom = (now) => (T.semester.start && T.semester.start > now.date ? T.semester.start : now.date);
@@ -135,14 +162,68 @@
   const joinHTML = (session) => (joinable(session) ? '<span class="join-pill">Join</span>' : '');
 
   // Online tiles with a Teams link open the join sheet, so they act as buttons.
+  // Tiles on a holiday in the viewed week are shown faded, as cancelled.
   function tileAttrs(session, layout, index, style = '') {
     const join = joinable(session);
+    const holiday = T.holidayOn(weekDate(session.day));
+    const title = holiday ? `No class: ${holiday}\n${tooltip(session)}` : tooltip(session);
     return (
-      `class="tile ${layout} is-${session.kind}${join ? ' has-join' : ''}" data-module="${esc(session.module)}" ` +
+      `class="tile ${layout} is-${session.kind}${join ? ' has-join' : ''}${holiday ? ' is-off' : ''}" data-module="${esc(session.module)}" ` +
       (join ? `data-session="${session.id}" role="button" aria-haspopup="dialog" ` : '') +
       (join || layout === 'block' ? 'tabindex="0" ' : '') +
-      `title="${esc(tooltip(session))}" style="--hue:var(--m${session.hue});--i:${index};${style}"`
+      `title="${esc(title)}" style="--hue:var(--m${session.hue});--i:${index};${style}"`
     );
+  }
+
+  function relativeWeek(offset) {
+    if (offset === 0) return 'This week';
+    if (offset === 1) return 'Next week';
+    if (offset === -1) return 'Last week';
+    return offset > 0 ? `In ${offset} weeks` : `${-offset} weeks ago`;
+  }
+
+  function renderWeekBar(tiles, now) {
+    const { min, max } = weekBounds(now);
+    const offset = daysBetween(mondayOf(now.date), state.week) / 7;
+    const teaching = semesterWeek(state.week);
+    const first = weekDate(T.days[0].index);
+    const last = weekDate(T.days[T.days.length - 1].index);
+
+    $('#week-relative').textContent = [relativeWeek(offset), teaching && `Week ${teaching}${T.semester.weeks ? ` of ${T.semester.weeks}` : ''}`]
+      .filter(Boolean)
+      .join(' · ');
+    $('#week-range').textContent = `${formatIso(dayMonth, first)} – ${formatIso(dayMonthYear, last)}`;
+    $('#week-prev').disabled = state.week <= min;
+    $('#week-next').disabled = state.week >= max;
+    $('#week-today').hidden = offset === 0;
+    const input = $('#week-date');
+    input.min = min;
+    input.max = addDays(max, 6);
+    input.value = state.week;
+
+    const notes = [];
+    if (T.semester.start && T.semester.weeks && !teaching) notes.push({ text: 'Outside the Semester 1 teaching weeks' });
+    for (let day = 0; day < 7; day += 1) {
+      const date = weekDate(day);
+      const name = T.holidayOn(date);
+      if (!name) continue;
+      const off = tiles.filter((session) => session.day === day).length;
+      notes.push({
+        holiday: true,
+        text: `${formatIso(prettyDay, date)}: ${name}` + (off ? ` · ${off} class${off === 1 ? '' : 'es'} off` : ''),
+      });
+    }
+    $('#week-notes').innerHTML = notes
+      .map((note) => `<li${note.holiday ? ' class="is-holiday"' : ''}>${esc(note.text)}</li>`)
+      .join('');
+  }
+
+  function setWeek(monday) {
+    const { min, max } = weekBounds(zoneNow());
+    const clamped = monday < min ? min : monday > max ? max : monday;
+    if (clamped === state.week) return;
+    state.week = clamped;
+    renderGroup();
   }
 
   function renderPicker() {
@@ -196,8 +277,8 @@
 
     const heads = T.days.map(
       (day) =>
-        `<div class="day-head${day.index === now.day ? ' is-today' : ''}" style="grid-column:${column(day.index)};grid-row:1">` +
-        `<span>${day.name}</span>${holidayHTML(thisWeek(now, day.index))}</div>`,
+        `<div class="day-head${isToday(now, day.index) ? ' is-today' : ''}" style="grid-column:${column(day.index)};grid-row:1">` +
+        `<span>${day.name} <b class="day-date">${Number(weekDate(day.index).slice(8))}</b></span>${holidayHTML(weekDate(day.index))}</div>`,
     );
     const hourLabels = Array.from(
       { length: T.hourCount + 1 },
@@ -205,9 +286,9 @@
     );
     const lanes = T.days.map((day, position) => {
       const classes = ['lane'];
-      if (day.index === now.day) classes.push('is-today');
+      if (isToday(now, day.index)) classes.push('is-today');
       if (position === T.days.length - 1) classes.push('is-last');
-      if (T.holidayOn(thisWeek(now, day.index))) classes.push('is-holiday');
+      if (T.holidayOn(weekDate(day.index))) classes.push('is-holiday');
       return `<div class="${classes.join(' ')}" style="grid-column:${column(day.index)}"></div>`;
     });
     const blocks = tiles.map((session, index) => {
@@ -266,11 +347,12 @@
         ]
           .sort((a, b) => a.start - b.start)
           .map((row) => row.html);
-        const summary = comparing() ? `${T.roundHours(freeMinutes)} free` : list.length ? `${hours} h` : 'Free';
+        const off = T.holidayOn(weekDate(day.index));
+        const summary = comparing() ? `${T.roundHours(freeMinutes)} free` : off && list.length ? 'No classes' : list.length ? `${hours} h` : 'Free';
         const empty = comparing() ? 'No shared classes and no common gap.' : 'No classes.';
         return (
-          `<section class="agenda-day"><h3>${day.name}${day.index === now.day ? '<mark>Today</mark>' : ''}` +
-          `${holidayHTML(thisWeek(now, day.index))}<small>${summary}</small></h3>` +
+          `<section class="agenda-day"><h3>${day.name}<span class="agenda-date">${formatIso(dayMonth, weekDate(day.index))}</span>` +
+          `${isToday(now, day.index) ? '<mark>Today</mark>' : ''}${holidayHTML(weekDate(day.index))}<small>${summary}</small></h3>` +
           (rows.join('') || `<p class="agenda-empty">${empty}</p>`) +
           '</section>'
         );
@@ -337,7 +419,7 @@
     const grid = $('#grid');
     grid.querySelector('.now')?.remove();
     const position = T.days.findIndex((day) => day.index === now.day);
-    if (position >= 0 && now.minutes >= T.dayStart && now.minutes <= T.dayEnd) {
+    if (viewingThisWeek(now) && position >= 0 && now.minutes >= T.dayStart && now.minutes <= T.dayEnd) {
       const marker = document.createElement('div');
       marker.className = 'now';
       marker.style.gridColumn = position + 2;
@@ -371,6 +453,7 @@
     $('#open-calendar-label').textContent = comparing() ? `Add Group ${state.group} to calendar` : 'Add to calendar';
     $('#legend-free').hidden = !comparing();
     renderStats();
+    renderWeekBar(tiles, now);
     renderChips(tiles);
     renderGrid(tiles, free, now);
     renderAgenda(tiles, free, now);
@@ -562,6 +645,22 @@
     $(`.compare-toggle[data-group="${group}"]`)?.focus();
   });
   $('#compare-clear').addEventListener('click', () => setView(state.group, []));
+
+  $('#week-prev').addEventListener('click', () => setWeek(addDays(state.week, -7)));
+  $('#week-next').addEventListener('click', () => setWeek(addDays(state.week, 7)));
+  $('#week-today').addEventListener('click', () => setWeek(mondayOf(zoneNow().date)));
+  $('#week-pick').addEventListener('click', () => {
+    const input = $('#week-date');
+    try {
+      input.showPicker();
+    } catch (error) {
+      input.focus();
+      input.click();
+    }
+  });
+  $('#week-date').addEventListener('change', (event) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(event.target.value)) setWeek(mondayOf(event.target.value));
+  });
 
   $('#chips').addEventListener('click', (event) => {
     const chip = event.target.closest('.chip');
