@@ -124,7 +124,55 @@
     );
   const componentOf = (session) => components.find((component) => component.key === componentKey(session));
 
+  // A part with no choice, such as a lecture every group attends together, is always in a custom week.
+  const isFixed = (component) => component.options.length <= component.need;
+
+  // The sessions of a custom week from the ids a person chose, as custom.html stores them.
+  function customWeek(ids) {
+    const chosen = new Set();
+    for (const component of components) {
+      if (isFixed(component)) {
+        component.options.forEach((option) => chosen.add(option.id));
+        continue;
+      }
+      const options = component.options.map((option) => option.id);
+      ids.filter((id) => options.includes(id)).slice(0, component.need).forEach((id) => chosen.add(id));
+    }
+    return sessions.filter((session) => chosen.has(session.id));
+  }
+
+  // Calendar dates as `YYYY-MM-DD` strings. Weekdays count from Monday = 0.
+  const DAY_MS = 86400000;
+  const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const addDays = (iso, count) => new Date(Date.parse(`${iso}T00:00:00Z`) + count * DAY_MS).toISOString().slice(0, 10);
+  const daysBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+  const weekdayOf = (iso) => (new Date(`${iso}T00:00:00Z`).getUTCDay() + 6) % 7;
+  const mondayOf = (iso) => addDays(iso, -weekdayOf(iso));
+
+  // The date, weekday and minutes past midnight in the timetable's own time zone.
+  function zoneNow() {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: data.timezone,
+      weekday: 'short',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(new Date());
+    const part = (type) => parts.find((entry) => entry.type === type).value;
+    return {
+      day: WEEKDAYS.indexOf(part('weekday')),
+      minutes: Number(part('hour')) * 60 + Number(part('minute')),
+      date: `${part('year')}-${part('month')}-${part('day')}`,
+    };
+  }
+
   root.Timetable = {
+    dates: { addDays, daysBetween, weekdayOf, mondayOf, zoneNow },
+    isFixed,
+    customWeek,
     data,
     groups: data.groups,
     modules,
