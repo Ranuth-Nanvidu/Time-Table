@@ -62,6 +62,18 @@ You can browse from the semester start, or from this week if that's later, throu
 
 The parts come from the data, so a new FET export needs no changes here. The URL stores session ids, so links made before a timetable update may lose picks whose sessions changed.
 
+## Attendance
+
+`attendance.html`, linked as "Attendance" in the header, lets a student mark each class as Attended, Missed or Cancelled once it has started. Each lecture and tutorial is counted separately, the same parts the build-your-own page uses.
+
+- Your timetable picks a group, or "My week" for the week saved on the build-your-own page.
+- To mark lists the classes that have started and have no mark yet. Holidays from `config/semester.json` are skipped. The three most recent days are open, and older ones are folded away.
+- By lecture and tutorial shows the attendance percentage for each part and how many more classes can be missed while staying at the target. The count covers every class from the start date to the semester end. Cancelled classes don't count either way.
+- Settings sets the target (80% by default), the start date and the semester end. When `start` and `weeks` are set in `config/semester.json`, they are the defaults. Until then, tracking starts on the Monday of the first visit and runs for 12 weeks.
+- Marks are stored in the browser only. Settings can export them to a `.json` file and import them back.
+
+Each mark stores the part it belongs to, so totals survive a new FET export. A mark whose session no longer exists still counts, and is listed as no longer in the timetable.
+
 ## Compare groups
 
 Pick "Compare with" under the group letters to see the classes two or more groups share and the free time they have in common. The URL updates to, for example, `#B+C`, so you can send it to a friend.
@@ -75,9 +87,11 @@ Pick "Compare with" under the group letters to see the classes two or more group
 | `config/meetings.json` | Teams links for online sessions. Edit by hand. |
 | `site/data.js` | Generated data. Do not edit by hand. |
 | `site/cal/` | Generated calendar feeds, one per group. Not committed. |
-| `site/model.js` | Derived values: display labels, visible days, hour range, per-group and compare statistics, holidays, the weekly parts each module needs. |
+| `site/model.js` | Derived values: display labels, visible days, hour range, per-group and compare statistics, holidays, the weekly parts each module needs, a custom week from its ids, and date helpers in the timetable's time zone. |
 | `site/app.js` | Group picker, compare mode, grid, phone agenda, next-class card, downloads, calendar subscription. |
 | `site/custom.html`, `site/custom.js` | The build-your-own page: slot picker, clash checks, preview, image and calendar downloads. |
+| `site/attendance.html`, `site/attendance.js` | The attendance page: marking, per-part totals, settings, backup. |
+| `site/attendance-core.js` | Attendance counting with no DOM: classes in a date range, which have started, totals and how many can still be missed. |
 | `site/poster.js` | Draws the PNG on a canvas at 3200 px wide, for a group or a custom week. |
 | `site/ics.js` | Builds the calendar file for a group or any list of sessions. Times use the `Asia/Colombo` zone. |
 | `site/styles.css` | Light and dark themes. Module colours are the `--m0` to `--m4` tokens. |

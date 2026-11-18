@@ -20,16 +20,13 @@
     },
   };
 
+  const { addDays, daysBetween, weekdayOf, mondayOf, zoneNow } = T.dates;
   const DAY_MS = 86400000;
   const LOOKAHEAD_DAYS = 21;
-  const addDays = (iso, count) => new Date(Date.parse(`${iso}T00:00:00Z`) + count * DAY_MS).toISOString().slice(0, 10);
-  const daysBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
-  const weekdayOf = (iso) => (new Date(`${iso}T00:00:00Z`).getUTCDay() + 6) % 7;
   const prettyDay = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   const prettyDate = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   const dayMonthYear = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-  const mondayOf = (iso) => addDays(iso, -weekdayOf(iso));
   const formatIso = (formatter, iso) => formatter.format(new Date(`${iso}T00:00:00Z`));
 
   // "#B" shows one group. "#B+C+D" compares B with C and D.
@@ -52,27 +49,6 @@
   };
   const comparing = () => state.compare.length > 0;
   const party = () => [state.group, ...state.compare];
-
-  const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  function zoneNow() {
-    const parts = new Intl.DateTimeFormat('en-GB', {
-      timeZone: T.data.timezone,
-      weekday: 'short',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23',
-    }).formatToParts(new Date());
-    const part = (type) => parts.find((entry) => entry.type === type).value;
-    return {
-      day: WEEKDAYS.indexOf(part('weekday')),
-      minutes: Number(part('hour')) * 60 + Number(part('minute')),
-      date: `${part('year')}-${part('month')}-${part('day')}`,
-    };
-  }
 
   const thisWeek = (now, dayIndex) => addDays(now.date, dayIndex - now.day);
 
